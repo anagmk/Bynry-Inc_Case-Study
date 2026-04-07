@@ -1,0 +1,79 @@
+CREATE TABLE companies (
+    company_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE,
+    address TEXT,
+    branch_name VARCHAR(255),
+    city VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE warehouses (
+    warehouse_id INT PRIMARY KEY AUTO_INCREMENT,
+    company_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    city VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (company_id) REFERENCES companies(company_id)
+);
+
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    sku VARCHAR(100) UNIQUE NOT NULL,
+    description TEXT,
+    cost_price DECIMAL(10,2),
+    selling_price DECIMAL(10,2),
+    is_bundle BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE inventory (
+    inventory_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    warehouse_id INT NOT NULL,
+    quantity INT DEFAULT 0,
+    low_stock_threshold INT DEFAULT 10,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (warehouse_id) REFERENCES warehouses(warehouse_id)
+);
+
+CREATE TABLE suppliers (
+    supplier_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE,
+    city VARCHAR(100),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE product_suppliers (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    supplier_id INT NOT NULL,
+    cost_price DECIMAL(10,2),
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
+);
+
+CREATE TABLE bundle_items (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    bundle_product_id INT NOT NULL,
+    child_product_id INT NOT NULL,
+    quantity INT DEFAULT 1 CHECK (quantity > 0),
+    FOREIGN KEY (bundle_product_id) REFERENCES products(product_id),
+    FOREIGN KEY (child_product_id) REFERENCES products(product_id)
+);
+
+CREATE TABLE inventory_logs (
+    log_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    warehouse_id INT NOT NULL,
+    quantity_changed INT NOT NULL,
+    reason VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(product_id),
+    FOREIGN KEY (warehouse_id) REFERENCES warehouses(warehouse_id)
+);
